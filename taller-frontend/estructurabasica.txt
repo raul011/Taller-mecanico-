@@ -1,0 +1,11 @@
+src/
+ ├─ app/
+ │   ├─ layout.tsx      → layout global
+ │   ├─ page.tsx        → home
+ │   ├─ globals.css
+ │   └─ clients/
+ │       └─ page.tsx    → /clients
+ ├─ components/
+ ├─ services/
+ ├─ types/
+ └─ lib/
