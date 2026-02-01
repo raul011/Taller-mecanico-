@@ -4,6 +4,7 @@ import { CreateAutoDto } from './dto/create-auto.dto';
 import { JwtAuthGuard, RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { UserRole } from '../users/entities/user.entity';
+import { AuditLog } from '../common/decorators/audit-log.decorator';
 
 @Controller('autos')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -12,6 +13,11 @@ export class AutosController {
 
   @Post()
   @Roles(UserRole.MECHANIC, UserRole.ADMIN)
+  @AuditLog({
+    action: 'CREATE_AUTO',
+    entity: 'auto',
+    description: (result) => `Se creó auto ${result.placa} - ${result.marca} ${result.modelo}`,
+  })
   create(@Body() createAutoDto: CreateAutoDto) {
     return this.autosService.create(createAutoDto);
   }

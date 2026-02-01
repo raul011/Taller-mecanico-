@@ -11,8 +11,9 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { SeedModule } from './seed/seed.module';
-
 import { LogsModule } from './logs/logs.module';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { AuditLogInterceptor } from './common/interceptors/audit-log.interceptor';
 
 
 
@@ -50,6 +51,12 @@ import { LogsModule } from './logs/logs.module';
         uri: config.get<string>('MONGO_URI'),
       }),
     }), LogsModule,
+  ],
+  providers: [
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: AuditLogInterceptor,
+    },
   ],
 })
 export class AppModule { }

@@ -5,6 +5,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { JwtAuthGuard, RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { UserRole } from '../users/entities/user.entity';
+import { AuditLog } from '../common/decorators/audit-log.decorator';
 
 @Controller('clientes')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -13,6 +14,11 @@ export class ClientesController {
 
   @Post()
   @Roles(UserRole.ADMIN, UserRole.CASHIER) // Cashier may create clients for invoicing
+  @AuditLog({
+    action: 'CREATE_CLIENT',
+    entity: 'cliente',
+    description: (result) => `Se creó cliente ${result.nombre}`,
+  })
   create(@Body() createClienteDto: CreateClienteDto) {
     return this.clientesService.create(createClienteDto);
   }
