@@ -6,6 +6,7 @@ export enum UserRole {
 }
 
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import type { UserPreferences } from '../interfaces/preferences.interface';
 
 @Entity('users')
 export class User {
@@ -29,6 +30,9 @@ export class User {
 
     @Column('bool', { default: true })
     isActive: boolean;
+
+    @Column('jsonb', { default: {} })
+    preferences: UserPreferences;
 
     @CreateDateColumn()
     createdAt: Date;

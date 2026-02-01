@@ -12,6 +12,7 @@ import { UsersModule } from './users/users.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { SeedModule } from './seed/seed.module';
 import { LogsModule } from './logs/logs.module';
+import { RedisModule } from './redis/redis.module';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { AuditLogInterceptor } from './common/interceptors/audit-log.interceptor';
 
@@ -50,7 +51,9 @@ import { AuditLogInterceptor } from './common/interceptors/audit-log.interceptor
       useFactory: (config: ConfigService) => ({
         uri: config.get<string>('MONGO_URI'),
       }),
-    }), LogsModule,
+    }),
+    LogsModule,
+    RedisModule,
   ],
   providers: [
     {

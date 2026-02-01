@@ -1,6 +1,7 @@
 import { Controller, Post, Body, Get, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto, LoginUserDto } from '../users/dto/create-user.dto';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { User } from '../users/entities/user.entity';
 // import { GetUser } from './decorators/get-user.decorator'; 
@@ -29,6 +30,17 @@ export class AuthController {
   @Post('login')
   loginUser(@Body() loginUserDto: LoginUserDto) {
     return this.authService.login(loginUserDto);
+  }
+
+  @Post('refresh')
+  async refresh(@Body() refreshTokenDto: RefreshTokenDto) {
+    return this.authService.refreshTokens(refreshTokenDto.refresh_token);
+  }
+
+  @Post('logout')
+  @UseGuards(JwtAuthGuard)
+  async logout(@GetUserParam() user: User) {
+    return this.authService.logout(user.id);
   }
 
   @Get('check-status')

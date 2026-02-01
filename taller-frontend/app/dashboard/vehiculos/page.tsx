@@ -119,10 +119,10 @@ export default function VehiculosPage() {
             {/* Header */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-zinc-400">
+                    <h1 className="text-3xl font-bold text-zinc-900 dark:text-white">
                         Gestión de Vehículos
                     </h1>
-                    <p className="text-zinc-400 mt-1">Control de flota y asignación de clientes.</p>
+                    <p className="text-zinc-600 dark:text-zinc-400 mt-1">Control de flota y asignación de clientes.</p>
                 </div>
                 <button
                     onClick={() => setIsModalOpen(true)}
@@ -134,7 +134,7 @@ export default function VehiculosPage() {
             </div>
 
             {/* Filters */}
-            <div className="p-4 rounded-2xl bg-zinc-900/50 border border-white/5 backdrop-blur-sm">
+            <div className="p-4 rounded-2xl bg-zinc-100 dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/5 backdrop-blur-sm">
                 <div className="relative max-w-md">
                     <Search className="absolute left-3 top-2.5 w-5 h-5 text-zinc-500" />
                     <input
@@ -142,13 +142,13 @@ export default function VehiculosPage() {
                         placeholder="Buscar por placa, marca o modelo..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full bg-black/20 border border-white/10 rounded-xl py-2 pl-10 pr-4 text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-purple-500/50 transition-all"
+                        className="w-full bg-white dark:bg-black/20 border border-zinc-300 dark:border-white/10 rounded-xl py-2 pl-10 pr-4 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-500 dark:placeholder:text-zinc-600 focus:outline-none focus:border-purple-500/50 transition-all"
                     />
                 </div>
             </div>
 
             {/* List */}
-            <div className="rounded-2xl border border-white/5 overflow-hidden bg-zinc-900/50 backdrop-blur-sm">
+            <div className="rounded-2xl border border-zinc-200 dark:border-white/5 overflow-hidden bg-white dark:bg-zinc-900/50 backdrop-blur-sm">
                 {loading ? (
                     <div className="p-12 flex justify-center">
                         <Loader2 className="w-8 h-8 text-purple-500 animate-spin" />
@@ -160,7 +160,7 @@ export default function VehiculosPage() {
                 ) : (
                     <div className="overflow-x-auto">
                         <table className="w-full text-left">
-                            <thead className="bg-white/5 text-xs uppercase text-zinc-400 font-medium">
+                            <thead className="bg-zinc-100 dark:bg-white/5 text-xs uppercase text-zinc-600 dark:text-zinc-400 font-medium">
                                 <tr>
                                     <th className="px-6 py-4">Vehículo</th>
                                     <th className="px-6 py-4">Detalles</th>
@@ -168,35 +168,35 @@ export default function VehiculosPage() {
                                     <th className="px-6 py-4 text-right">Acciones</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-white/5">
+                            <tbody className="divide-y divide-zinc-200 dark:divide-white/5">
                                 {filteredVehiculos.map((auto) => (
-                                    <tr key={auto.id} className="group hover:bg-white/5 transition-colors">
+                                    <tr key={auto.id} className="group hover:bg-zinc-50 dark:hover:bg-white/5 transition-colors">
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500/20 to-blue-500/20 flex items-center justify-center text-purple-400 border border-white/5">
+                                                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500/20 to-blue-500/20 flex items-center justify-center text-purple-400 border border-zinc-200 dark:border-white/5">
                                                     <Car className="w-5 h-5" />
                                                 </div>
                                                 <div>
-                                                    <p className="font-medium text-zinc-200">{auto.marca} {auto.modelo}</p>
+                                                    <p className="font-medium text-zinc-900 dark:text-zinc-200">{auto.marca} {auto.modelo}</p>
                                                     <p className="text-xs text-zinc-500">ID: {auto.id}</p>
                                                 </div>
                                             </div>
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="space-y-1">
-                                                <div className="flex items-center gap-2 text-sm text-zinc-400">
-                                                    <Hash className="w-4 h-4 text-zinc-600" />
-                                                    <span className="font-mono bg-white/5 px-1.5 rounded text-xs">{auto.placa}</span>
+                                                <div className="flex items-center gap-2 text-sm text-zinc-600 dark:text-zinc-400">
+                                                    <Hash className="w-4 h-4 text-zinc-500 dark:text-zinc-600" />
+                                                    <span className="font-mono bg-zinc-100 dark:bg-white/5 px-1.5 rounded text-xs">{auto.placa}</span>
                                                 </div>
-                                                <div className="flex items-center gap-2 text-sm text-zinc-400">
-                                                    <Calendar className="w-4 h-4 text-zinc-600" />
+                                                <div className="flex items-center gap-2 text-sm text-zinc-600 dark:text-zinc-400">
+                                                    <Calendar className="w-4 h-4 text-zinc-500 dark:text-zinc-600" />
                                                     {auto.anio}
                                                 </div>
                                             </div>
                                         </td>
                                         <td className="px-6 py-4">
                                             {auto.cliente ? (
-                                                <div className="flex items-center gap-2 text-sm text-zinc-300">
+                                                <div className="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-300">
                                                     <User className="w-4 h-4 text-zinc-500" />
                                                     {auto.cliente.nombre}
                                                 </div>
@@ -220,12 +220,12 @@ export default function VehiculosPage() {
             {/* Modal */}
             {isModalOpen && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-                    <div className="bg-[#111] border border-white/10 rounded-2xl w-full max-w-lg shadow-2xl animate-in zoom-in-95 duration-200">
-                        <div className="flex items-center justify-between p-6 border-b border-white/5">
-                            <h2 className="text-xl font-bold text-zinc-100">Registrar Nuevo Vehículo</h2>
+                    <div className="bg-white dark:bg-[#111] border border-zinc-200 dark:border-white/10 rounded-2xl w-full max-w-lg shadow-2xl animate-in zoom-in-95 duration-200">
+                        <div className="flex items-center justify-between p-6 border-b border-zinc-200 dark:border-white/5">
+                            <h2 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">Registrar Nuevo Vehículo</h2>
                             <button
                                 onClick={() => setIsModalOpen(false)}
-                                className="text-zinc-500 hover:text-zinc-300 transition-colors"
+                                className="text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors"
                             >
                                 <X className="w-5 h-5" />
                             </button>
@@ -234,24 +234,24 @@ export default function VehiculosPage() {
                         <form onSubmit={handleCreate} className="p-6 space-y-4">
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <label className="text-sm font-medium text-zinc-400">Marca</label>
+                                    <label className="text-sm font-medium text-zinc-700 dark:text-zinc-400">Marca</label>
                                     <input
                                         type="text"
                                         required
                                         value={formData.marca}
                                         onChange={e => setFormData({ ...formData, marca: e.target.value })}
-                                        className="w-full bg-zinc-900 border border-white/10 rounded-xl py-2 px-4 text-zinc-200 focus:outline-none focus:border-purple-500/50"
+                                        className="w-full bg-zinc-100 dark:bg-zinc-900 border border-zinc-300 dark:border-white/10 rounded-xl py-2 px-4 text-zinc-900 dark:text-zinc-200 focus:outline-none focus:border-purple-500/50"
                                         placeholder="Toyota"
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-sm font-medium text-zinc-400">Modelo</label>
+                                    <label className="text-sm font-medium text-zinc-700 dark:text-zinc-400">Modelo</label>
                                     <input
                                         type="text"
                                         required
                                         value={formData.modelo}
                                         onChange={e => setFormData({ ...formData, modelo: e.target.value })}
-                                        className="w-full bg-zinc-900 border border-white/10 rounded-xl py-2 px-4 text-zinc-200 focus:outline-none focus:border-purple-500/50"
+                                        className="w-full bg-zinc-100 dark:bg-zinc-900 border border-zinc-300 dark:border-white/10 rounded-xl py-2 px-4 text-zinc-900 dark:text-zinc-200 focus:outline-none focus:border-purple-500/50"
                                         placeholder="Corolla"
                                     />
                                 </div>
@@ -259,36 +259,36 @@ export default function VehiculosPage() {
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <label className="text-sm font-medium text-zinc-400">Placa</label>
+                                    <label className="text-sm font-medium text-zinc-700 dark:text-zinc-400">Placa</label>
                                     <input
                                         type="text"
                                         required
                                         value={formData.placa}
                                         onChange={e => setFormData({ ...formData, placa: e.target.value })}
-                                        className="w-full bg-zinc-900 border border-white/10 rounded-xl py-2 px-4 text-zinc-200 focus:outline-none focus:border-purple-500/50"
+                                        className="w-full bg-zinc-100 dark:bg-zinc-900 border border-zinc-300 dark:border-white/10 rounded-xl py-2 px-4 text-zinc-900 dark:text-zinc-200 focus:outline-none focus:border-purple-500/50"
                                         placeholder="ABC-123"
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-sm font-medium text-zinc-400">Año</label>
+                                    <label className="text-sm font-medium text-zinc-700 dark:text-zinc-400">Año</label>
                                     <input
                                         type="number"
                                         required
                                         value={formData.anio}
                                         onChange={e => setFormData({ ...formData, anio: e.target.value })}
-                                        className="w-full bg-zinc-900 border border-white/10 rounded-xl py-2 px-4 text-zinc-200 focus:outline-none focus:border-purple-500/50"
+                                        className="w-full bg-zinc-100 dark:bg-zinc-900 border border-zinc-300 dark:border-white/10 rounded-xl py-2 px-4 text-zinc-900 dark:text-zinc-200 focus:outline-none focus:border-purple-500/50"
                                         placeholder="2024"
                                     />
                                 </div>
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-sm font-medium text-zinc-400">Propietario (Cliente)</label>
+                                <label className="text-sm font-medium text-zinc-700 dark:text-zinc-400">Propietario (Cliente)</label>
                                 <select
                                     required
                                     value={formData.clienteId}
                                     onChange={e => setFormData({ ...formData, clienteId: e.target.value })}
-                                    className="w-full bg-zinc-900 border border-white/10 rounded-xl py-2 px-4 text-zinc-200 focus:outline-none focus:border-purple-500/50 appearance-none"
+                                    className="w-full bg-zinc-100 dark:bg-zinc-900 border border-zinc-300 dark:border-white/10 rounded-xl py-2 px-4 text-zinc-900 dark:text-zinc-200 focus:outline-none focus:border-purple-500/50 appearance-none"
                                 >
                                     <option value="">Seleccione un cliente...</option>
                                     {clientes.map(cliente => (
@@ -303,7 +303,7 @@ export default function VehiculosPage() {
                                 <button
                                     type="button"
                                     onClick={() => setIsModalOpen(false)}
-                                    className="px-4 py-2 rounded-xl text-zinc-400 hover:text-zinc-200 hover:bg-white/5 transition-colors font-medium"
+                                    className="px-4 py-2 rounded-xl text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-white/5 transition-colors font-medium"
                                 >
                                     Cancelar
                                 </button>
@@ -323,3 +323,4 @@ export default function VehiculosPage() {
         </div>
     );
 }
+
