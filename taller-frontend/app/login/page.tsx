@@ -3,9 +3,12 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Eye, EyeOff, Lock, Mail, Wrench } from 'lucide-react';
+import { api } from '@/lib/api';
+import { usePreferences } from '@/contexts/PreferencesContext';
 
 export default function LoginPage() {
     const router = useRouter();
+    const { updatePreferences } = usePreferences();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
@@ -18,34 +21,18 @@ export default function LoginPage() {
         setError(null);
 
         try {
-            const res = await fetch('http://localhost:3001/auth/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ email, password }),
-            });
+            const data = await api.login(email, password);
 
-            if (!res.ok) {
-                throw new Error('Credenciales inválidas');
+            // Save tokens
+            localStorage.setItem('token', data.access_token);
+            localStorage.setItem('refresh_token', data.refresh_token);
+
+            // Apply preferences immediately (cache warming)
+            if (data.preferences) {
+                await updatePreferences(data.preferences);
             }
 
-            const data = await res.json();
-            // Assuming the API returns a token in data.token or data.access_token
-            // Adjust based on actual API response
-            const token = data.token || data.access_token;
-
-            if (token) {
-                localStorage.setItem('token', token);
-                // Also set a cookie for middleware if needed later
-                document.cookie = `token=${token}; path=/; max-age=86400;`;
-                router.push('/dashboard');
-            } else {
-                // Fallback if structure is different, just log it for now
-                console.log('Login successful but no token found in standard fields:', data);
-                router.push('/dashboard');
-            }
-
+            router.push('/dashboard');
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Ocurrió un error al iniciar sesión');
         } finally {

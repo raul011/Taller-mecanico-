@@ -5,6 +5,8 @@ import * as bcrypt from 'bcrypt';
 import { User, UserRole } from '../users/entities/user.entity';
 import { ServiciosTrabajo } from '../servicios-trabajo/entities/servicios-trabajo.entity';
 import { Repuesto } from '../repuestos/entities/repuesto.entity';
+import { OrdenTrabajo } from '../orden-trabajo/entities/orden-trabajo.entity';
+import { OrdenItem } from '../orden-trabajo/entities/orden-item.entity';
 
 @Injectable()
 export class SeedService {
@@ -17,6 +19,10 @@ export class SeedService {
         private readonly servicioRepository: Repository<ServiciosTrabajo>,
         @InjectRepository(Repuesto)
         private readonly repuestoRepository: Repository<Repuesto>,
+        @InjectRepository(OrdenTrabajo)
+        private readonly ordenRepository: Repository<OrdenTrabajo>,
+        @InjectRepository(OrdenItem)
+        private readonly itemRepository: Repository<OrdenItem>,
     ) { }
 
     async runSeed() {
@@ -29,7 +35,9 @@ export class SeedService {
 
     private async cleanDatabase() {
         // Delete in order to avoid FK constraints
-        // Using QueryBuilder to bypass "Empty criteria" safeguard of TypeORM 0.3+
+        await this.itemRepository.createQueryBuilder().delete().execute();
+        await this.ordenRepository.createQueryBuilder().delete().execute();
+
         await this.repuestoRepository.createQueryBuilder().delete().execute();
         await this.servicioRepository.createQueryBuilder().delete().execute();
         await this.userRepository.createQueryBuilder().delete().execute();

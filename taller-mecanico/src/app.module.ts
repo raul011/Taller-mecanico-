@@ -11,11 +11,11 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { SeedModule } from './seed/seed.module';
+import { CitasModule } from './citas/citas.module';
 import { LogsModule } from './logs/logs.module';
+import { RedisModule } from './redis/redis.module';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { AuditLogInterceptor } from './common/interceptors/audit-log.interceptor';
-
-
 
 @Module({
   imports: [
@@ -38,19 +38,16 @@ import { AuditLogInterceptor } from './common/interceptors/audit-log.interceptor
     PagosModule,
     AuthModule,
     UsersModule,
+    CitasModule,
     SeedModule,
-
-    /*
-    MongooseModule.forRoot('mongodb://localhost/taller-mecanico', {
-      connectionName: 'DatabaseConnection', // Si estás usando múltiples conexiones
-    }),
-    */
     MongooseModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
         uri: config.get<string>('MONGO_URI'),
       }),
-    }), LogsModule,
+    }),
+    LogsModule,
+    RedisModule,
   ],
   providers: [
     {

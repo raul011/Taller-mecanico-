@@ -35,6 +35,7 @@ export class AutosService {
   }
 
   findAll() {
+    this.logger.log('Finding all autos with relations');
     return this.autoRepository.find({ relations: { cliente: true } });
   }
 
