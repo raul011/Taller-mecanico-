@@ -303,6 +303,21 @@ export const api = {
         return res.json();
     },
 
+    async updateCita(id: number, data: Partial<Cita>): Promise<Cita> {
+        const token = localStorage.getItem('token');
+        const res = await fetch(`${API_URL}/citas/${id}`, {
+            method: 'PATCH',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        });
+
+        if (!res.ok) throw new Error('Failed to update cita');
+        return res.json();
+    },
+
     async getClientes(): Promise<any[]> {
         const token = localStorage.getItem('token');
         const res = await fetch(`${API_URL}/clientes`, {

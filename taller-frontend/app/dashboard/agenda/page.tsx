@@ -4,8 +4,9 @@ import { useState, useEffect } from 'react';
 import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { ChevronLeft, ChevronRight, Plus, Calendar as CalendarIcon } from 'lucide-react';
-import { api } from '@/lib/api';
+import { api, Cita } from '@/lib/api';
 import CreateCitaModal from '@/components/citas/CreateCitaModal';
+import CitaDetailsModal from '@/components/citas/CitaDetailsModal';
 
 export default function AgendaPage() {
     const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -14,6 +15,7 @@ export default function AgendaPage() {
     const [loading, setLoading] = useState(true);
 
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedCitaDetails, setSelectedCitaDetails] = useState<Cita | null>(null);
 
     useEffect(() => {
         fetchCitas();
@@ -37,8 +39,10 @@ export default function AgendaPage() {
     const prevMonth = () => setCurrentMonth(subMonths(currentMonth, 1));
     const onDateClick = (day: Date) => {
         setSelectedDate(day);
-        // Optional: Open modal on date click
-        // setIsModalOpen(true);
+    };
+
+    const onCitaClick = (cita: Cita) => {
+        setSelectedCitaDetails(cita);
     };
 
     const [viewMode, setViewMode] = useState<'calendar' | 'list'>('calendar');
@@ -106,7 +110,11 @@ export default function AgendaPage() {
                     <tbody className="divide-y divide-gray-100">
                         {sortedCitas.length > 0 ? (
                             sortedCitas.map(cita => (
-                                <tr key={cita.id} className="hover:bg-gray-50">
+                                <tr
+                                    key={cita.id}
+                                    className="hover:bg-gray-50 cursor-pointer"
+                                    onClick={() => onCitaClick(cita)}
+                                >
                                     <td className="px-4 py-3 whitespace-nowrap">
                                         <div className="font-medium text-gray-900">{format(new Date(cita.fechaHora), 'dd MMMM yyyy', { locale: es })}</div>
                                         <div className="text-gray-500">{format(new Date(cita.fechaHora), 'HH:mm')}</div>
@@ -124,7 +132,8 @@ export default function AgendaPage() {
                                         <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium 
                                             ${cita.status === 'completed' ? 'bg-green-100 text-green-700' :
                                                 cita.status === 'cancelled' ? 'bg-red-100 text-red-700' :
-                                                    'bg-blue-100 text-blue-700'}`}>
+                                                    cita.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
+                                                        'bg-blue-100 text-blue-700'}`}>
                                             {cita.status === 'pending' ? 'Pendiente' :
                                                 cita.status === 'completed' ? 'Completado' :
                                                     cita.status === 'cancelled' ? 'Cancelado' : cita.status}
@@ -201,12 +210,27 @@ export default function AgendaPage() {
                             </div>
 
                             <div className="mt-2 space-y-1">
-                                {citasForDay.slice(0, 3).map((cita, idx) => (
-                                    <div key={idx} className="text-xs p-1 bg-blue-100 text-blue-700 rounded truncate cursor-pointer hover:bg-blue-200" title={cita.motivo}>
-                                        <div className="font-semibold">{format(new Date(cita.fechaHora), 'HH:mm')} - {cita.cliente?.nombre || 'Cliente'}</div>
-                                        {cita.auto && <div className="text-[10px] opacity-80">{cita.auto.marca} {cita.auto.modelo}</div>}
-                                    </div>
-                                ))}
+                                {citasForDay.slice(0, 3).map((cita, idx) => {
+                                    let statusColorClass = 'bg-blue-100 text-blue-700 hover:bg-blue-200'; // Default/Confirmed
+                                    if (cita.status === 'completed') statusColorClass = 'bg-green-100 text-green-700 hover:bg-green-200';
+                                    if (cita.status === 'pending') statusColorClass = 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200';
+                                    if (cita.status === 'cancelled') statusColorClass = 'bg-red-100 text-red-700 hover:bg-red-200';
+
+                                    return (
+                                        <div
+                                            key={idx}
+                                            className={`text-xs p-1 rounded truncate cursor-pointer transition-colors ${statusColorClass}`}
+                                            title={cita.motivo}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                onCitaClick(cita);
+                                            }}
+                                        >
+                                            <div className="font-semibold">{format(new Date(cita.fechaHora), 'HH:mm')} - {cita.cliente?.nombre || 'Cliente'}</div>
+                                            {cita.auto && <div className="text-[10px] opacity-80">{cita.auto.marca} {cita.auto.modelo}</div>}
+                                        </div>
+                                    );
+                                })}
                                 {citasForDay.length > 3 && (
                                     <div className="text-xs text-gray-500 pl-1">
                                         + {citasForDay.length - 3} más
@@ -238,6 +262,18 @@ export default function AgendaPage() {
                 onClose={() => setIsModalOpen(false)}
                 onSuccess={fetchCitas}
                 initialDate={selectedDate}
+            // Optional: pass cita to edit if expanding CreateCitaModal to handle edits
+            />
+
+            <CitaDetailsModal
+                isOpen={!!selectedCitaDetails}
+                onClose={() => setSelectedCitaDetails(null)}
+                cita={selectedCitaDetails}
+                onStatusChange={fetchCitas}
+                onEdit={(cita) => {
+                    // Placeholder for future edit functionality
+                    alert('Función Editar en desarrollo. Por ahora usa la base de datos o recrea la cita.');
+                }}
             />
         </div>
     );

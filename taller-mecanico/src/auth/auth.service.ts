@@ -69,12 +69,17 @@ export class AuthService {
         secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
       });
 
-      // Check if token exists in Redis
-      const tokenKey = `refresh_token:${payload.id}`;
-      const storedToken = await this.redisService.get(tokenKey);
+      // Check if token exists in Redis (only if connected)
+      if (this.redisService.isConnected) {
+        const tokenKey = `refresh_token:${payload.id}`;
+        const storedToken = await this.redisService.get(tokenKey);
 
-      if (!storedToken || storedToken !== refreshToken) {
-        throw new UnauthorizedException('Invalid refresh token');
+        if (!storedToken || storedToken !== refreshToken) {
+          throw new UnauthorizedException('Invalid refresh token');
+        }
+
+        // Delete old refresh token
+        await this.redisService.delete(tokenKey);
       }
 
       // Get user
@@ -82,9 +87,6 @@ export class AuthService {
       if (!user) {
         throw new UnauthorizedException('User not found');
       }
-
-      // Delete old refresh token
-      await this.redisService.delete(tokenKey);
 
       // Generate new tokens
       const tokens = await this.generateTokens(user);
