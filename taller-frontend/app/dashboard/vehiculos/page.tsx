@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Plus, Search, Car, Calendar, Hash, User, X, Loader2 } from 'lucide-react';
+import VehiculoHistorialModal from '@/components/vehiculos/VehiculoHistorialModal';
 
 interface Auto {
     id: number;
@@ -24,6 +25,7 @@ export default function VehiculosPage() {
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedAutoForHistory, setSelectedAutoForHistory] = useState<Auto | null>(null);
     const [submitting, setSubmitting] = useState(false);
 
     // Form State
@@ -113,6 +115,18 @@ export default function VehiculosPage() {
         v.marca.toLowerCase().includes(searchTerm.toLowerCase()) ||
         v.modelo.toLowerCase().includes(searchTerm.toLowerCase())
     );
+
+    if (selectedAutoForHistory) {
+        return (
+            <div className="animate-in fade-in zoom-in-95 duration-500">
+                <VehiculoHistorialModal
+                    isOpen={!!selectedAutoForHistory}
+                    onClose={() => setSelectedAutoForHistory(null)}
+                    auto={selectedAutoForHistory}
+                />
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-6 animate-in fade-in zoom-in-95 duration-500">
@@ -205,7 +219,10 @@ export default function VehiculosPage() {
                                             )}
                                         </td>
                                         <td className="px-6 py-4 text-right">
-                                            <button className="text-purple-400 hover:text-purple-300 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <button
+                                                onClick={() => setSelectedAutoForHistory(auto)}
+                                                className="text-purple-400 hover:text-purple-300 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity"
+                                            >
                                                 Ver Historial
                                             </button>
                                         </td>
@@ -320,6 +337,7 @@ export default function VehiculosPage() {
                     </div>
                 </div>
             )}
+
         </div>
     );
 }
