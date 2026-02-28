@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 import { UpdatePreferencesDto } from './dto/update-preferences.dto';
 import type { UserPreferences } from './interfaces/preferences.interface';
 import { RedisService } from '../redis/redis.service';
@@ -36,6 +37,16 @@ export class UsersService {
         }
     }
 
+    async findAll(role?: string) {
+        if (role) {
+            // Using QueryBuilder to check array column
+            return this.userRepository.createQueryBuilder('u')
+                .where('u.roles::text[] @> ARRAY[:role]', { role })
+                .getMany();
+        }
+        return this.userRepository.find();
+    }
+
     async findOneByEmail(email: string) {
         const user = await this.userRepository.findOne({
             where: { email },
@@ -48,6 +59,27 @@ export class UsersService {
         const user = await this.userRepository.findOneBy({ id });
         if (!user) throw new NotFoundException(`User with id ${id} not found`);
         return user;
+    }
+
+    async update(id: string, updateUserDto: UpdateUserDto) {
+        const user = await this.findOne(id);
+        const { password, ...rest } = updateUserDto;
+
+        if (password) {
+            user.password = bcrypt.hashSync(password, 10);
+        }
+
+        Object.assign(user, rest);
+        return this.userRepository.save(user);
+    }
+
+    async remove(id: string) {
+        const user = await this.findOne(id);
+        user.isActive = false; // Soft delete usually better, but for now strict remove or soft? 
+        // Let's do soft delete logic if IsActive exists, else remove.
+        // The entity has isActive.
+        await this.userRepository.save(user);
+        return { message: 'User deactivated' };
     }
 
     /**

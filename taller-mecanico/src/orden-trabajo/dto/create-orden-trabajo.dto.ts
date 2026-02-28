@@ -23,6 +23,14 @@ export class CreateOrdenItemDto {
     @IsNumber()
     @Min(1)
     quantity: number;
+
+    @IsString()
+    @IsOptional()
+    customName?: string;
+
+    @IsNumber()
+    @IsOptional()
+    customPrice?: number;
 }
 
 export class CreateOrdenTrabajoDto {

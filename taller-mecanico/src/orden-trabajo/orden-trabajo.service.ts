@@ -66,7 +66,7 @@ export class OrdenTrabajoService {
 
     return this.ordenRepository.find({
       where,
-      relations: { auto: true, items: true, mechanic: true },
+      relations: ['auto', 'auto.cliente', 'items', 'mechanic'],
       order: { createdAt: 'DESC' }
     });
   }
@@ -74,7 +74,7 @@ export class OrdenTrabajoService {
   async findOne(id: number) {
     const orden = await this.ordenRepository.findOne({
       where: { id },
-      relations: { auto: true, items: true, mechanic: true },
+      relations: ['auto', 'auto.cliente', 'items', 'mechanic'],
     });
     if (!orden) throw new NotFoundException(`Order ${id} not found`);
     return orden;
@@ -108,6 +108,10 @@ export class OrdenTrabajoService {
       await this.repuestoRepository.save(repuesto);
     }
 
+    // Use custom price/name if provided, otherwise use defaults
+    if (itemDto.customName) itemName = itemDto.customName;
+    if (itemDto.customPrice !== undefined) unitPrice = itemDto.customPrice;
+
     const totalPrice = unitPrice * itemDto.quantity;
 
     const item = this.itemRepository.create({
@@ -120,12 +124,74 @@ export class OrdenTrabajoService {
       orden,
     });
 
-    await this.itemRepository.save(item);
+    // Save item - TypeORM commits automatically
+    const savedItem = await this.itemRepository.save(item);
 
     // Update Order Total
-    orden.total = Number(orden.total) + Number(totalPrice);
-    if (orden.status === OrderStatus.PENDING) orden.status = OrderStatus.IN_PROGRESS;
-    return this.ordenRepository.save(orden);
+    await this.recalculateOrderTotal(ordenId);
+
+    // Auto status update
+    if (orden.status === OrderStatus.PENDING) {
+      await this.ordenRepository.update(ordenId, { status: OrderStatus.IN_PROGRESS });
+    }
+
+    // Query for updated order
+    return this.ordenRepository
+      .createQueryBuilder('orden')
+      .leftJoinAndSelect('orden.auto', 'auto')
+      .leftJoinAndSelect('auto.cliente', 'cliente')
+      .leftJoinAndSelect('orden.items', 'items')
+      .leftJoinAndSelect('orden.mechanic', 'mechanic')
+      .where('orden.id = :id', { id: ordenId })
+      .getOne();
+  }
+
+  async updateItem(ordenId: number, itemId: number, updateDto: CreateOrdenItemDto) {
+    const orden = await this.findOne(ordenId);
+    if (orden.status === OrderStatus.FINISHED || orden.status === OrderStatus.PAID) {
+      throw new BadRequestException('Cannot update items in finished/paid order');
+    }
+
+    const item = await this.itemRepository.findOneBy({ id: itemId, orden: { id: ordenId } });
+    if (!item) throw new NotFoundException('Item not found');
+
+    // Handle stock changes if quantity changes for parts
+    if (item.type === ItemType.PART && updateDto.quantity !== item.quantity) {
+      const repuesto = await this.repuestoRepository.findOneBy({ id: item.itemId });
+      if (repuesto) {
+        const diff = updateDto.quantity - item.quantity;
+        if (repuesto.stock < diff) {
+          throw new BadRequestException(`Not enough stock. Available: ${repuesto.stock}`);
+        }
+        repuesto.stock -= diff;
+        await this.repuestoRepository.save(repuesto);
+      }
+    }
+
+    // Update fields
+    item.quantity = updateDto.quantity;
+    if (updateDto.customName) item.itemName = updateDto.customName;
+    if (updateDto.customPrice !== undefined) item.unitPrice = updateDto.customPrice;
+
+    // Recalculate total
+    item.totalPrice = item.unitPrice * item.quantity;
+
+    await this.itemRepository.save(item);
+    await this.recalculateOrderTotal(ordenId);
+
+    return this.findOne(ordenId);
+  }
+
+  private async recalculateOrderTotal(ordenId: number) {
+    const orden = await this.ordenRepository.findOne({
+      where: { id: ordenId },
+      relations: ['items']
+    });
+    if (orden) {
+      const total = orden.items.reduce((sum, item) => sum + Number(item.totalPrice), 0);
+      orden.total = total;
+      await this.ordenRepository.save(orden);
+    }
   }
 
   async removeItem(ordenId: number, itemId: number) {
@@ -146,13 +212,20 @@ export class OrdenTrabajoService {
       }
     }
 
-    // Update Order Total
-    orden.total = Number(orden.total) - Number(item.totalPrice);
-
-    // Auto status update if empty? Maybe not needed, but good to keep consistency.
-
     await this.itemRepository.remove(item);
-    return this.ordenRepository.save(orden);
+    await this.recalculateOrderTotal(ordenId);
+
+    // Use QueryBuilder to bypass all caching
+    const freshOrder = await this.ordenRepository
+      .createQueryBuilder('orden')
+      .leftJoinAndSelect('orden.auto', 'auto')
+      .leftJoinAndSelect('auto.cliente', 'cliente')
+      .leftJoinAndSelect('orden.items', 'items')
+      .leftJoinAndSelect('orden.mechanic', 'mechanic')
+      .where('orden.id = :id', { id: ordenId })
+      .getOne();
+
+    return freshOrder;
   }
 
   async changeStatus(id: number, status: OrderStatus) {

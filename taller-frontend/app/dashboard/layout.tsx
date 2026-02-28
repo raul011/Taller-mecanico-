@@ -11,7 +11,8 @@ import {
     CreditCard,
     LogOut,
     Wrench,
-    Settings
+    Settings,
+    Calendar
 } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from '@/lib/hooks/useTranslation';
@@ -31,6 +32,9 @@ export default function DashboardLayout({
         { name: t('nav.clients'), href: '/dashboard/clientes', icon: Users },
         { name: t('nav.vehicles'), href: '/dashboard/vehiculos', icon: Car },
         { name: t('nav.orders'), href: '/dashboard/ordenes', icon: ClipboardList },
+        { name: 'Agenda', href: '/dashboard/agenda', icon: Calendar },
+        { name: 'Servicios', href: '/dashboard/servicios', icon: ClipboardList },
+        { name: 'Mecánicos', href: '/dashboard/mecanicos', icon: Users },
         { name: t('nav.inventory'), href: '/dashboard/inventario', icon: Package },
     ];
 
@@ -55,7 +59,7 @@ export default function DashboardLayout({
                         </div>
                         {isSidebarOpen && (
                             <span className="font-bold text-lg bg-clip-text text-transparent bg-gradient-to-r from-zinc-900 dark:from-white to-zinc-600 dark:to-white/60 whitespace-nowrap">
-                                Taller Pro
+                                Taller Ricardo
                             </span>
                         )}
                     </div>
