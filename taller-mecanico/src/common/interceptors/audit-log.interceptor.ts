@@ -3,6 +3,7 @@ import {
     NestInterceptor,
     ExecutionContext,
     CallHandler,
+    Optional,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Observable } from 'rxjs';
@@ -15,7 +16,7 @@ import type { AuditMetadata } from '../interfaces/audit-metadata.interface';
 export class AuditLogInterceptor implements NestInterceptor {
     constructor(
         private readonly reflector: Reflector,
-        private readonly logsService: LogsService,
+        @Optional() private readonly logsService?: LogsService,
     ) { }
 
     intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
@@ -37,6 +38,8 @@ export class AuditLogInterceptor implements NestInterceptor {
 
         return next.handle().pipe(
             tap(async (result) => {
+                if (!this.logsService) return;
+
                 try {
                     const entityId = result?.id || result?._id || undefined;
                     const description = auditMetadata.description

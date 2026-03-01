@@ -1,4 +1,6 @@
 import { Module } from '@nestjs/common';
+import * as dotenv from 'dotenv';
+dotenv.config();
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ClientesModule } from './clientes/clientes.module';
@@ -17,29 +19,35 @@ import { RedisModule } from './redis/redis.module';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { AuditLogInterceptor } from './common/interceptors/audit-log.interceptor';
 
-@Module({
-  imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: process.env.DB_HOST,
-      port: parseInt(process.env.DB_PORT || '5432'),
-      username: process.env.DB_USER,
-      password: process.env.DB_PASS,
-      database: process.env.DB_NAME,
-      autoLoadEntities: true,
-      synchronize: true, // SOLO desarrollo
-    }),
-    ClientesModule,
-    AutosModule,
-    OrdenTrabajoModule,
-    ServiciosTrabajoModule,
-    RepuestosModule,
-    PagosModule,
-    AuthModule,
-    UsersModule,
-    CitasModule,
-    SeedModule,
+const isMongoEnabled = !!process.env.MONGO_URI;
+
+const importsArray: any[] = [
+  ConfigModule.forRoot({ isGlobal: true }),
+  TypeOrmModule.forRoot({
+    type: 'postgres',
+    host: process.env.DB_HOST,
+    port: parseInt(process.env.DB_PORT || '5432'),
+    username: process.env.DB_USER,
+    password: process.env.DB_PASS,
+    database: process.env.DB_NAME,
+    autoLoadEntities: true,
+    synchronize: true, // SOLO desarrollo
+  }),
+  ClientesModule,
+  AutosModule,
+  OrdenTrabajoModule,
+  ServiciosTrabajoModule,
+  RepuestosModule,
+  PagosModule,
+  AuthModule,
+  UsersModule,
+  CitasModule,
+  SeedModule,
+  RedisModule,
+];
+
+if (isMongoEnabled) {
+  importsArray.push(
     MongooseModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
@@ -47,8 +55,11 @@ import { AuditLogInterceptor } from './common/interceptors/audit-log.interceptor
       }),
     }),
     LogsModule,
-    RedisModule,
-  ],
+  );
+}
+
+@Module({
+  imports: importsArray,
   providers: [
     {
       provide: APP_INTERCEPTOR,
