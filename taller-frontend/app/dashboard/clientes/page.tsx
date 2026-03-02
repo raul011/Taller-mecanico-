@@ -72,7 +72,10 @@ export default function ClientesPage() {
             const res = await fetch(`${API_URL}/clientes`, {
                 method: 'POST',
                 headers: headers,
-                body: JSON.stringify(formData)
+                body: JSON.stringify({
+                    ...formData,
+                    email: formData.email || undefined
+                })
             });
 
             if (res.ok) {
@@ -242,7 +245,6 @@ export default function ClientesPage() {
                                         <Mail className="absolute left-3 top-2.5 w-5 h-5 text-zinc-500 dark:text-zinc-600" />
                                         <input
                                             type="email"
-                                            required
                                             value={formData.email}
                                             onChange={e => setFormData({ ...formData, email: e.target.value })}
                                             className="w-full bg-zinc-100 dark:bg-zinc-900 border border-zinc-300 dark:border-white/10 rounded-xl py-2 pl-10 pr-4 text-zinc-900 dark:text-zinc-200 focus:outline-none focus:border-blue-500/50"
