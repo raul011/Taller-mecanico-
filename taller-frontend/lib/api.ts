@@ -20,7 +20,7 @@ export interface CreateCitaDto {
 }
 
 //const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://taller-mecanico-vx3b.onrender.com';
+export const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://taller-mecanico-vx3b.onrender.com';
 
 export const api = {
     async login(email: string, password: string): Promise<AuthResponse> {

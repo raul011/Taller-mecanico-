@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Plus, Search, User, Phone, Mail, X, Loader2 } from 'lucide-react';
 import { useTranslation } from '@/lib/hooks/useTranslation';
+import { API_URL } from '@/lib/api';
 
 interface Cliente {
     id: number;
@@ -34,7 +35,7 @@ export default function ClientesPage() {
                 headers['Authorization'] = `Bearer ${token}`;
             }
 
-            const res = await fetch('http://localhost:3001/clientes', {
+            const res = await fetch(`${API_URL}/clientes`, {
                 headers: headers
             });
 
@@ -68,7 +69,7 @@ export default function ClientesPage() {
                 headers['Authorization'] = `Bearer ${token}`;
             }
 
-            const res = await fetch('http://localhost:3001/clientes', {
+            const res = await fetch(`${API_URL}/clientes`, {
                 method: 'POST',
                 headers: headers,
                 body: JSON.stringify(formData)

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Plus, Search, Car, Calendar, Hash, User, X, Loader2 } from 'lucide-react';
 import VehiculoHistorialModal from '@/components/vehiculos/VehiculoHistorialModal';
+import { API_URL } from '@/lib/api';
 
 interface Auto {
     id: number;
@@ -50,8 +51,8 @@ export default function VehiculosPage() {
             const headers = getHeaders();
 
             const [autosRes, clientesRes] = await Promise.all([
-                fetch('http://localhost:3001/autos', { headers }),
-                fetch('http://localhost:3001/clientes', { headers })
+                fetch(`${API_URL}/autos`, { headers }),
+                fetch(`${API_URL}/clientes`, { headers })
             ]);
 
             if (autosRes.ok) {
@@ -86,7 +87,7 @@ export default function VehiculosPage() {
                 clienteId: parseInt(formData.clienteId)
             };
 
-            const res = await fetch('http://localhost:3001/autos', {
+            const res = await fetch(`${API_URL}/autos`, {
                 method: 'POST',
                 headers: getHeaders(),
                 body: JSON.stringify(body)
