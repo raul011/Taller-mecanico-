@@ -3,7 +3,7 @@
 import { Users, Car, ClipboardList, TrendingUp, Loader2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useTranslation } from '@/lib/hooks/useTranslation';
-import { api } from '@/lib/api';
+import { api, API_URL } from '@/lib/api';
 import type { OrdenTrabajo } from '@/types/orden-trabajo';
 import Link from 'next/link';
 
@@ -27,8 +27,8 @@ export default function DashboardPage() {
 
                 // We can use the existing API helper or fetch directly for simple counts
                 const [clientesRes, autosRes, ordenesData] = await Promise.all([
-                    fetch('http://localhost:3001/clientes', { headers: { Authorization: `Bearer ${token}` } }),
-                    fetch('http://localhost:3001/autos', { headers: { Authorization: `Bearer ${token}` } }),
+                    fetch(`${API_URL}/clientes`, { headers: { Authorization: `Bearer ${token}` } }),
+                    fetch(`${API_URL}/autos`, { headers: { Authorization: `Bearer ${token}` } }),
                     api.getOrdenes(token)
                 ]);
 
